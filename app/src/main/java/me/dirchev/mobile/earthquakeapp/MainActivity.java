@@ -12,7 +12,7 @@
 //
 
 // Update the package name to include your Student Identifier
-package gcu.mpd.bgsdatastarter;
+package me.dirchev.mobile.earthquakeapp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-
-import me.dirchev.mobile.earthquakeapp.R;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener
 {
