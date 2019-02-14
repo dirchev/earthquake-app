@@ -1,17 +1,3 @@
-
-/*  Starter project for Mobile Platform Development in Semester B Session 2018/2019
-    You should use this project as the starting point for your assignment.
-    This project simply reads the data from the required URL and displays the
-    raw data in a TextField
-*/
-
-//
-// Name                 _________________
-// Student ID           _________________
-// Programme of Study   _________________
-//
-
-// Update the package name to include your Student Identifier
 package me.dirchev.mobile.earthquakeapp;
 
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +14,13 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * Mobile Platform Development Coursework 2019
+ * Name:                    Dimitar Mirchev
+ * Student ID:              S1515512
+ * Programme of study:      Computing
+ * 2019 February 14
+ */
 public class MainActivity extends AppCompatActivity implements OnClickListener
 {
     private TextView rawDataDisplay;
