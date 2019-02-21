@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+
+import me.dirchev.mobile.earthquakeapp.models.EarthquakesChannel;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -25,8 +28,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 {
     private TextView rawDataDisplay;
     private Button startButton;
-    private String result;
-    private String url1="";
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
 
     @Override
@@ -49,73 +50,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
     public void startProgress()
     {
-        // Run network access on a separate thread;
-        new Thread(new Task(urlSource)).start();
-    } //
-
-    // Need separate thread to access the internet resource over network
-    // Other neater solutions should be adopted in later iterations.
-    private class Task implements Runnable
-    {
-        private String url;
-
-        public Task(String aurl)
-        {
-            url = aurl;
-        }
-        @Override
-        public void run()
-        {
-
-            URL aurl;
-            URLConnection yc;
-            BufferedReader in = null;
-            String inputLine = "";
-
-
-            Log.e("MyTag","in run");
-
-            try
-            {
-                Log.e("MyTag","in try");
-                aurl = new URL(url);
-                yc = aurl.openConnection();
-                in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-                //
-                // Throw away the first 2 header lines before parsing
-                //
-                //
-                //
-                while ((inputLine = in.readLine()) != null)
+        EarthquakeLoader loader = new EarthquakeLoader(urlSource, new EarthquakeParsedEventListener() {
+            @Override
+            public void run(final List<EarthquakesChannel> earthquakesChannelList) {
+                MainActivity.this.runOnUiThread(new Runnable()
                 {
-                    result = result + inputLine;
-                    Log.e("MyTag",inputLine);
-
-                }
-                in.close();
+                    public void run() {
+                        Log.d("UI thread", "I am the UI thread");
+                        Log.d("PARSED", earthquakesChannelList.toString());
+                    }
+                });
             }
-            catch (IOException ae)
-            {
-                Log.e("MyTag", "ioexception");
-            }
-
-            //
-            // Now that you have the xml data you can parse it
-            //
-
-            // Now update the TextView to display raw XML data
-            // Probably not the best way to update TextView
-            // but we are just getting started !
-
-            MainActivity.this.runOnUiThread(new Runnable()
-            {
-                public void run() {
-                    Log.d("UI thread", "I am the UI thread");
-                    rawDataDisplay.setText(result);
-                }
-            });
-        }
-
+        });
+        new Thread(loader).start();
     }
-
 }
