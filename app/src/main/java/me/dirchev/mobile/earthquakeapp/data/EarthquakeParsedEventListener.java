@@ -1,8 +1,9 @@
-package me.dirchev.mobile.earthquakeapp;
+package me.dirchev.mobile.earthquakeapp.data;
 
 import java.util.List;
 
-import me.dirchev.mobile.earthquakeapp.models.EarthquakesChannel;
+import me.dirchev.mobile.earthquakeapp.models.Earthquake;
+import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -12,5 +13,5 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakesChannel;
  * 2019 February 21
  */
 public interface EarthquakeParsedEventListener{
-    void run (List<EarthquakesChannel> earthquakesChannelList);
+    void run (EarthquakeRepository earthquakesChannelList);
 }

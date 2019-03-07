@@ -1,4 +1,4 @@
-package me.dirchev.mobile.earthquakeapp;
+package me.dirchev.mobile.earthquakeapp.data;
 
 import android.util.Log;
 
@@ -10,7 +10,7 @@ import java.net.URLConnection;
 import java.util.List;
 
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
-import me.dirchev.mobile.earthquakeapp.models.EarthquakesChannel;
+import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -54,7 +54,7 @@ public class EarthquakeLoader implements Runnable {
         return xmlResult;
     }
 
-    private List<EarthquakesChannel> parseXML (String xml) {
+    private EarthquakeRepository parseXML (String xml) {
         EarthquakeParser parser = new EarthquakeParser(xml);
         return parser.parse();
     }
@@ -62,7 +62,7 @@ public class EarthquakeLoader implements Runnable {
     @Override
     public void run() {
         String xmlResult = this.getXML();
-        List<EarthquakesChannel> earthquakesChannelList = this.parseXML(xmlResult);
-        onReady.run(earthquakesChannelList);
+        EarthquakeRepository earthquakeRepository = this.parseXML(xmlResult);
+        onReady.run(earthquakeRepository);
     }
 }
