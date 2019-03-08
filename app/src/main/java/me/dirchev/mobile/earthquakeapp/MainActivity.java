@@ -27,6 +27,7 @@ import me.dirchev.mobile.earthquakeapp.data.EarthquakeParsedEventListener;
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
 import me.dirchev.mobile.earthquakeapp.models.EarthquakeDataStore;
 import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
+import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepositoryChangeListener;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -52,9 +53,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_main);
         startProgress();
         recyclerView = (RecyclerView) findViewById(R.id.earthquake_list_recycler_view);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     public void startProgress()
@@ -71,8 +69,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         RAdapter radapter = new RAdapter(MainActivity.this);
                         recyclerView.setAdapter(radapter);
                         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                        Log.d("UI thread", "I am the UI thread");
-                        Log.d("PARSED", earthquakeRepository.toString());
+                        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+                        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+                        mapFragment.getMapAsync(MainActivity.this);
                     }
                 });
             }
@@ -90,11 +89,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        final GoogleMap map = googleMap;
+        EarthquakeDataStore dataStore = EarthquakeDataStore.getInstance();
+        EarthquakeRepository earthquakeRepository = dataStore.getEarthquakeRepository();
+        earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
+            @Override
+            public void onChange(EarthquakeRepository earthquakeRepository) {
+                MainActivity.this.setMapLocationAndMarker(earthquakeRepository.getSelectedEarthquake(), map);
+            }
+        });
+        this.setMapLocationAndMarker(earthquakeRepository.getSelectedEarthquake(), map);
+    }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    private void setMapLocationAndMarker (Earthquake earthquake, GoogleMap googleMap) {
+        LatLng place = earthquake.getLocation();
+        googleMap.clear();
+        googleMap.addMarker(new MarkerOptions().position(place).title("Here it is"));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(earthquake.getLocation()));
     }
 }

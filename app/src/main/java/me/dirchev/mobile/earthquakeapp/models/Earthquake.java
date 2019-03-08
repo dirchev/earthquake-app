@@ -3,6 +3,8 @@ package me.dirchev.mobile.earthquakeapp.models;
 import android.location.Location;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,7 +24,7 @@ public class Earthquake {
     private Date pubDate;
     private String category;
     private String locationName;
-    private Location location;
+    private LatLng location;
     private double magnitude;
     private Depth depth;
 
@@ -65,11 +67,11 @@ public class Earthquake {
         this.category = category;
     }
 
-    public Location getLocation() {
+    public LatLng getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(LatLng location) {
         this.location = location;
     }
 
@@ -77,9 +79,7 @@ public class Earthquake {
         String[] parts = locationString.split(",");
         double lat = Double.parseDouble(parts[0]);
         double lon = Double.parseDouble(parts[1]);
-        this.location = new Location("Something");
-        location.setLatitude(lat);
-        location.setLongitude(lon);
+        this.location = new LatLng(lat, lon);
     }
 
     public String getLocationName() {

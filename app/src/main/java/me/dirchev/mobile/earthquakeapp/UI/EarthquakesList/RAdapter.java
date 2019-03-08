@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,6 +32,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         public TextView magnitudeTextView;
         public TextView depthTextView;
         public TextView locationNameTextView;
+        public Button showOnMapButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -39,6 +41,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
             magnitudeTextView = itemView.findViewById(R.id.magnitude_text);
             depthTextView = itemView.findViewById(R.id.depth_text);
             locationNameTextView = itemView.findViewById(R.id.location_name_text);
+            showOnMapButton = itemView.findViewById(R.id.show_on_map_button);
         }
     }
 
@@ -50,6 +53,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RAdapter.ViewHolder viewHolder, int i) {
+        final int index = i;
         Earthquake earthquake = earthquakeRepository.getEarthquakeByIndex(i);
         TextView magnitudeTextView = viewHolder.magnitudeTextView;
         TextView depthTextView = viewHolder.depthTextView;
@@ -57,6 +61,13 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         magnitudeTextView.setText(Double.toString(earthquake.getMagnitude()));
         depthTextView.setText(earthquake.getDepth().toString());
         locationNameTextView.setText(earthquake.getLocationName());
+        Button showOnMapButton = viewHolder.showOnMapButton;
+        showOnMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                earthquakeRepository.setSelectedEarthquakeIndex(index);
+            }
+        });
     }
 
     @Override
