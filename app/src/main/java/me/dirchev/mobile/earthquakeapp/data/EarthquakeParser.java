@@ -23,13 +23,14 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
  */
 public class EarthquakeParser {
     String xmlString;
+    EarthquakeRepository earthquakeRepository;
 
-    EarthquakeParser (String xmlString) {
+    EarthquakeParser (String xmlString, EarthquakeRepository earthquakeRepository) {
         this.xmlString = xmlString;
+        this.earthquakeRepository = earthquakeRepository;
     }
 
-    public EarthquakeRepository parse() {
-        EarthquakeRepository earthquakeRepository = new EarthquakeRepository();
+    public void parse() {
         Earthquake earthquake = null;
 
         try {
@@ -75,7 +76,5 @@ public class EarthquakeParser {
         {
             Log.e("MyTag","IO error during parsing");
         }
-
-        return earthquakeRepository;
     }
 }

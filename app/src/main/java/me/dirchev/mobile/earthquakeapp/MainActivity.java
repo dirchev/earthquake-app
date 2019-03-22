@@ -19,6 +19,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Date;
 import java.util.List;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
@@ -38,13 +39,12 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepositoryChangeListener
  */
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 {
-
-    private GoogleMap mMap;
-
-    private TextView rawDataDisplay;
     private RecyclerView recyclerView;
-    private Button startButton;
+    private Button nextDayButton;
+    private Button prevDayButton;
+    private TextView dateTextView;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
+    EarthquakeDataStore dataStore = EarthquakeDataStore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,21 +53,46 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_main);
         startProgress();
         recyclerView = (RecyclerView) findViewById(R.id.earthquake_list_recycler_view);
+        nextDayButton = findViewById(R.id.nextDay);
+        prevDayButton = findViewById(R.id.prevDay);
+        dateTextView = findViewById(R.id.button1);
+        prevDayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Date newDate = (Date) dataStore.getEarthquakeRepository().getSelectedDate().clone();
+                newDate.setDate(newDate.getDate() - 1);
+                dataStore.getEarthquakeRepository().setSelectedDate(newDate);
+                dateTextView.setText(EarthquakeRepository.getStringFromEarthquakePubDate(newDate));
+            }
+        });
+        nextDayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Date newDate = (Date) dataStore.getEarthquakeRepository().getSelectedDate().clone();
+                newDate.setDate(newDate.getDate() + 1);
+                dataStore.getEarthquakeRepository().setSelectedDate(newDate);
+                dateTextView.setText(EarthquakeRepository.getStringFromEarthquakePubDate(newDate));
+            }
+        });
     }
 
     public void startProgress()
     {
         EarthquakeLoader loader;
-        loader = new EarthquakeLoader(urlSource, new EarthquakeParsedEventListener() {
+        loader = new EarthquakeLoader(urlSource, dataStore.getEarthquakeRepository(), new EarthquakeParsedEventListener() {
             @Override
             public void run(final EarthquakeRepository earthquakeRepository) {
                 MainActivity.this.runOnUiThread(new Runnable()
                 {
                     public void run() {
-                        EarthquakeDataStore dataStore = EarthquakeDataStore.getInstance();
-                        dataStore.setRepository(earthquakeRepository);
-                        RAdapter radapter = new RAdapter(MainActivity.this);
+                        final RAdapter radapter = new RAdapter(MainActivity.this);
                         recyclerView.setAdapter(radapter);
+                        earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
+                            @Override
+                            public void onChange(EarthquakeRepository earthquakeRepository) {
+                                radapter.notifyDataSetChanged();
+                            }
+                        });
                         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -102,8 +127,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setMapLocationAndMarker (Earthquake earthquake, GoogleMap googleMap) {
-        LatLng place = earthquake.getLocation();
         googleMap.clear();
+        if (earthquake == null) return;
+        LatLng place = earthquake.getLocation();
         googleMap.addMarker(new MarkerOptions().position(place).title("Here it is"));
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(earthquake.getLocation()));
     }

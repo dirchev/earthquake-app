@@ -1,17 +1,14 @@
 package me.dirchev.mobile.earthquakeapp.UI.EarthquakesList;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 import me.dirchev.mobile.earthquakeapp.R;
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
@@ -54,7 +51,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(RAdapter.ViewHolder viewHolder, int i) {
         final int index = i;
-        Earthquake earthquake = earthquakeRepository.getEarthquakeByIndex(i);
+        Earthquake earthquake = earthquakeRepository.getEarthquakesForDate().get(i);
         TextView magnitudeTextView = viewHolder.magnitudeTextView;
         TextView depthTextView = viewHolder.depthTextView;
         TextView locationNameTextView = viewHolder.locationNameTextView;
@@ -65,6 +62,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         showOnMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("SelectedEarthquake", Integer.toString(index));
                 earthquakeRepository.setSelectedEarthquakeIndex(index);
             }
         });
@@ -72,7 +70,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return earthquakeRepository.size();
+        return earthquakeRepository.getEarthquakesForDate().size();
     }
 
 

@@ -11,15 +11,15 @@ public class EarthquakeDataStore {
     private EarthquakeRepository earthquakeRepository;
     private static EarthquakeDataStore instance;
 
+    private EarthquakeDataStore () {
+        this.earthquakeRepository = new EarthquakeRepository();
+    }
+
     public static EarthquakeDataStore getInstance () {
         if (instance == null) {
             instance = new EarthquakeDataStore();
         }
         return instance;
-    }
-
-    public void setRepository (EarthquakeRepository earthquakeRepository) {
-        this.earthquakeRepository = earthquakeRepository;
     }
 
     public EarthquakeRepository getEarthquakeRepository() {

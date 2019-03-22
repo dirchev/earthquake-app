@@ -22,10 +22,12 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
 public class EarthquakeLoader implements Runnable {
     private String url;
     private EarthquakeParsedEventListener onReady;
+    private EarthquakeRepository repository;
 
-    public EarthquakeLoader(String url, EarthquakeParsedEventListener onReady) {
+    public EarthquakeLoader(String url, EarthquakeRepository repository, EarthquakeParsedEventListener onReady) {
         this.url = url;
         this.onReady = onReady;
+        this.repository = repository;
     }
 
     private String getXML () {
@@ -54,15 +56,15 @@ public class EarthquakeLoader implements Runnable {
         return xmlResult;
     }
 
-    private EarthquakeRepository parseXML (String xml) {
-        EarthquakeParser parser = new EarthquakeParser(xml);
-        return parser.parse();
+    private void parseXML (String xml, EarthquakeRepository repository) {
+        EarthquakeParser parser = new EarthquakeParser(xml, repository);
+        parser.parse();
     }
 
     @Override
     public void run() {
         String xmlResult = this.getXML();
-        EarthquakeRepository earthquakeRepository = this.parseXML(xmlResult);
-        onReady.run(earthquakeRepository);
+        this.parseXML(xmlResult, repository);
+        onReady.run(repository);
     }
 }
