@@ -13,34 +13,105 @@
         tools:context=".MainActivity"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"/>
-    <fragment
-        android:id="@+id/list_fragment"
-        />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/searchBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:layout_below="@+id/map">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <TextView
+                    android:id="@+id/filtersInfo"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="No filters applied."
+                    android:gravity="center_vertical"
+                    />
+                <EditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:hint="Enter town/location name"
+                    android:visibility="gone"
+                    >
+                    <requestFocus/>
+                </EditText>
+                <Button
+                    android:id="@+id/toggleFiltersButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="0"
+                    android:text="Show Filters"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/additionalFilters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <EditText
+                    android:id="@+id/startDateInput"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:inputType="date"
+                    android:hint="Start Date..."/>
+                <EditText
+                    android:id="@+id/endDateInput"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:inputType="date"
+                    android:hint="End Date..."/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/filtersButtonsContainer"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/closeFiltersButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="Cancel"/>
+                <Button
+                    android:id="@+id/clearFiltersButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="Clear"/>
+                <Button
+                    android:id="@+id/updateFiltersButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="Update"/>
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 
     <TextView
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
+        android:id="@+id/resultsInfo"
+        android:layout_below="@+id/searchBox"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/map"
-        android:layout_centerInParent="true"
-        android:layout_alignBottom="@+id/prevDay"
-        android:text="Somehting" />
-    <Button
-        android:layout_toLeftOf="@id/button1"
-        android:layout_below="@+id/map"
-        android:id="@+id/prevDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Previous"/>
-    <Button
-        android:layout_toRightOf="@id/button1"
-        android:layout_below="@+id/map"
-        android:id="@+id/nextDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"/>
+        android:paddingTop="10dp"
+        android:text="Number of items"/>
+
     <ScrollView
-        android:layout_below="@id/button1"
+        android:layout_below="@id/resultsInfo"
         android:id="@+id/scrollView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
@@ -48,7 +119,7 @@
             android:id="@+id/earthquake_list_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingHorizontal="10dp"
+            android:paddingTop="10dp"
             />
     </ScrollView>
 </RelativeLayout>
