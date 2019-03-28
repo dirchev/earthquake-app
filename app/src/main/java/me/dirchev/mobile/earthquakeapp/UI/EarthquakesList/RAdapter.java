@@ -25,7 +25,7 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
 public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public CardView row;
+        public ViewGroup row;
         public TextView magnitudeTextView;
         public TextView depthTextView;
         public TextView locationNameTextView;
@@ -51,7 +51,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(RAdapter.ViewHolder viewHolder, int i) {
         final int index = i;
-        Earthquake earthquake = earthquakeRepository.getEarthquakesForDate().get(i);
+        Earthquake earthquake = earthquakeRepository.getVisibleEarthquakes().get(i);
         TextView magnitudeTextView = viewHolder.magnitudeTextView;
         TextView depthTextView = viewHolder.depthTextView;
         TextView locationNameTextView = viewHolder.locationNameTextView;
@@ -70,7 +70,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return earthquakeRepository.getEarthquakesForDate().size();
+        return earthquakeRepository.getVisibleEarthquakes().size();
     }
 
 
