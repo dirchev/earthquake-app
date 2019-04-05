@@ -1,6 +1,5 @@
 package me.dirchev.mobile.earthquakeapp.models;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -19,6 +18,7 @@ import java.util.Locale;
  * 2019 February 21
  */
 public class Earthquake {
+    private String id;
     private String title;
     private String link;
     private Date pubDate;

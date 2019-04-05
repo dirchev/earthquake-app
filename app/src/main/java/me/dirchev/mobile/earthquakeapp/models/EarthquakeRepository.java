@@ -21,8 +21,9 @@ import java.util.Observable;
 public class EarthquakeRepository {
     List<Earthquake> earthquakeList;
     List<Earthquake> filteredEarthquakes;
-    Map<String, List<Earthquake>> earthquakesByDateList;
+    Map<String, Earthquake> ewnsEarthquakes;
     Map<String, Object> filters;
+    boolean showStatsOnly;
 
     List<EarthquakeRepositoryChangeListener> changeListeners;
     int selectedEarthquakeIndex = -1;
@@ -34,8 +35,14 @@ public class EarthquakeRepository {
     public EarthquakeRepository () {
         this.earthquakeList = new LinkedList<>();
         this.changeListeners = new LinkedList<>();
-        this.earthquakesByDateList = new HashMap<>();
         this.filters = new HashMap<>();
+        this.filters = new HashMap<>();
+        showStatsOnly = false;
+    }
+
+    public void toggleStats () {
+        this.showStatsOnly = !this.showStatsOnly;
+        processFilteredEarthquakes();
     }
 
     public void setFilter(String filterName, Object filterValue) {
@@ -51,33 +58,58 @@ public class EarthquakeRepository {
     private void processFilteredEarthquakes () {
         Date startDateFilter = (Date) filters.get("startDate");
         Date endDateFilter = (Date) filters.get("endDate");
+        ewnsEarthquakes = new HashMap<>();
         String textFilter = (String) filters.get("text");
         this.filteredEarthquakes = new LinkedList<>();
         for (Earthquake current : earthquakeList) {
             if (startDateFilter != null && current.getPubDate().before(startDateFilter)) continue;
             if (endDateFilter != null && current.getPubDate().after(endDateFilter)) continue;
             if (textFilter != null && !current.getLocationName().contains(textFilter)) continue;
+            // add to filtered earthquakes
             this.filteredEarthquakes.add(current);
+
+            // check if EWNS
+            if (ewnsEarthquakes.get("North") == null || current.getLocation().latitude > ewnsEarthquakes.get("North").getLocation().latitude) {
+                ewnsEarthquakes.put("North", current);
+            }
+            if (ewnsEarthquakes.get("South") == null || current.getLocation().latitude < ewnsEarthquakes.get("South").getLocation().latitude) {
+                ewnsEarthquakes.put("South", current);
+            }
+            if (ewnsEarthquakes.get("East") == null || current.getLocation().longitude > ewnsEarthquakes.get("East").getLocation().longitude) {
+                ewnsEarthquakes.put("East", current);
+            }
+            if (ewnsEarthquakes.get("West") == null || current.getLocation().longitude < ewnsEarthquakes.get("West").getLocation().longitude) {
+                ewnsEarthquakes.put("West", current);
+            }
+            if (ewnsEarthquakes.get("Shallow") == null || current.getDepth().value < ewnsEarthquakes.get("Shallow").getDepth().value) {
+                ewnsEarthquakes.put("Shallow", current);
+            }
+            if (ewnsEarthquakes.get("Deep") == null || current.getDepth().value > ewnsEarthquakes.get("Deep").getDepth().value) {
+                ewnsEarthquakes.put("Deep", current);
+            }
+            if (ewnsEarthquakes.get("Magnitude") == null || current.getMagnitude() > ewnsEarthquakes.get("Magnitude").getMagnitude()) {
+                ewnsEarthquakes.put("Magnitude", current);
+            }
         }
     }
 
     public void addEarthquake (Earthquake earthquake) {
         String dateString = this.getStringFromEarthquakePubDate(earthquake.getPubDate());
         this.earthquakeList.add(earthquake);
-        if (earthquakesByDateList.containsKey(dateString)) {
-            earthquakesByDateList.get(dateString).add(earthquake);
-        } else {
-            List<Earthquake> newListForDate = new LinkedList<>();
-            newListForDate.add(earthquake);
-            earthquakesByDateList.put(dateString, newListForDate);
-            Log.e("MyTag/ new date", dateString);
-        }
+        List<Earthquake> newListForDate = new LinkedList<>();
+        newListForDate.add(earthquake);
         processFilteredEarthquakes();
     }
 
     public Earthquake getSelectedEarthquake () {
         if (this.selectedEarthquakeIndex == -1) return null;
         return this.getVisibleEarthquakes().get(this.selectedEarthquakeIndex);
+    }
+
+    public void setSelectedEarthquake (Earthquake earthquake) {
+        int index = this.filteredEarthquakes.indexOf(earthquake);
+        if (index == -1) return;
+        this.setSelectedEarthquakeIndex(this.filteredEarthquakes.indexOf(earthquake));
     }
 
 
@@ -149,5 +181,33 @@ public class EarthquakeRepository {
             result += earthquake.toString() + "\n============\n";
         }
         return result;
+    }
+
+    public Map<String, Earthquake> getEWNSMap() {
+        return ewnsEarthquakes;
+    }
+
+    public int getSelectedEarthquakeIndex() {
+        return selectedEarthquakeIndex;
+    }
+
+    public void setEarthquakeFilter(Earthquake earthquake, String title) {
+        if (title.equals("date")) {
+            Date date = earthquake.getPubDate();
+            Date startDate = (Date) date.clone();
+            startDate.setHours(0);
+            startDate.setMinutes(0);
+            startDate.setSeconds(0);
+            Date endDate = (Date) startDate.clone();
+            endDate.setDate(startDate.getDate() + 1);
+            this.setFilter("startDate", startDate);
+            this.setFilter("endDate", endDate);
+        } else if (title.equals("location")) {
+            this.setFilter("text", earthquake.getLocationName());
+        }
+    }
+
+    public Map<String, Object> getFilters() {
+        return this.filters;
     }
 }
