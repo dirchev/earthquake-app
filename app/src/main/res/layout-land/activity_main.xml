@@ -12,7 +12,7 @@
         android:layout_height="300dp"
         tools:context=".MainActivity"
         android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"/>
+        android:layout_alignParentLeft="true"/>
 
     <android.support.v7.widget.CardView
         android:id="@+id/searchBox"
@@ -105,8 +105,9 @@
     <LinearLayout
         android:id="@+id/resultsBar"
         android:layout_width="match_parent"
-        android:layout_below="@+id/searchBox"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/map"
+        android:layout_alignParentTop="true"
         android:orientation="horizontal">
 
         <TextView
@@ -126,9 +127,9 @@
             android:text="Stats"/>
     </LinearLayout>
 
-
     <ScrollView
         android:layout_below="@id/resultsBar"
+        android:layout_toRightOf="@id/map"
         android:id="@+id/scrollView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">

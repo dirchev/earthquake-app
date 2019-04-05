@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/eastest" android:title="Most Easterly" />
+    <item android:id="@+id/westest" android:title="Most Westerly" />
+    <item android:id="@+id/northest" android:title="Most Northerly" />
+    <item android:id="@+id/southest" android:title="Most Southerly" />
+    <item android:id="@+id/deepest" android:title="Deepest" />
+    <item android:id="@+id/shallow" android:title="Shallowest" />
+    <item android:id="@+id/magnitude" android:title="Largest Magnitude" />
+</menu>
