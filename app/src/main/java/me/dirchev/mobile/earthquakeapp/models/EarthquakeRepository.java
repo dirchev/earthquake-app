@@ -60,6 +60,7 @@ public class EarthquakeRepository {
         Date endDateFilter = (Date) filters.get("endDate");
         ewnsEarthquakes = new HashMap<>();
         String textFilter = (String) filters.get("text");
+        Earthquake previouslySelectedEarthquake = this.getSelectedEarthquake();
         this.filteredEarthquakes = new LinkedList<>();
         for (Earthquake current : earthquakeList) {
             if (startDateFilter != null && current.getPubDate().before(startDateFilter)) continue;
@@ -91,10 +92,11 @@ public class EarthquakeRepository {
                 ewnsEarthquakes.put("Magnitude", current);
             }
         }
+        // try to restore the selected earthquake
+        this.setSelectedEarthquake(previouslySelectedEarthquake);
     }
 
     public void addEarthquake (Earthquake earthquake) {
-        String dateString = this.getStringFromEarthquakePubDate(earthquake.getPubDate());
         this.earthquakeList.add(earthquake);
         List<Earthquake> newListForDate = new LinkedList<>();
         newListForDate.add(earthquake);
@@ -107,8 +109,6 @@ public class EarthquakeRepository {
     }
 
     public void setSelectedEarthquake (Earthquake earthquake) {
-        int index = this.filteredEarthquakes.indexOf(earthquake);
-        if (index == -1) return;
         this.setSelectedEarthquakeIndex(this.filteredEarthquakes.indexOf(earthquake));
     }
 

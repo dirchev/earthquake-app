@@ -23,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -90,7 +91,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Button closeFiltersButton;
     private Button clearFiltersButton;
     private Button updateFiltersButton;
-    private Button statsMenuButton;
     private SupportMapFragment mapFragment;
     private ViewGroup additionalFilters;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
@@ -109,7 +109,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startDateInput = findViewById(R.id.startDateInput);
         endDateInput = findViewById(R.id.endDateInput);
         searchInput = findViewById(R.id.searchInput);
-        statsMenuButton = findViewById(R.id.statsMenuButton);
         toggleFiltersButton = findViewById(R.id.toggleFiltersButton);
         closeFiltersButton = findViewById(R.id.closeFiltersButton);
         clearFiltersButton = findViewById(R.id.clearFiltersButton);
@@ -277,26 +276,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         Earthquake selectedEarthquake = earthquakeRepository.getSelectedEarthquake();
         googleMap.clear();
 
-        final Map<String, Earthquake> ewnsEarthquakes = earthquakeRepository.getEWNSMap();
-        if (ewnsEarthquakes.get("South") != null) {
-            Earthquake earthquake = ewnsEarthquakes.get("South");
-            Marker southMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Southern earthquake"));
-            southMarker.setTag(earthquake);
-        }
-        if (ewnsEarthquakes.get("West") != null) {
-            Earthquake earthquake = ewnsEarthquakes.get("West");
-            Marker westMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Western earthquake"));
-            westMarker.setTag(earthquake);
-        }
-        if (ewnsEarthquakes.get("East") != null) {
-            Earthquake earthquake = ewnsEarthquakes.get("East");
-            Marker eastMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Eastern earthquake"));
-            eastMarker.setTag(earthquake);
-        }
-        if (ewnsEarthquakes.get("North") != null) {
-            Earthquake earthquake = ewnsEarthquakes.get("North");
-            Marker northMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Northern earthquake"));
-            northMarker.setTag(earthquake);
+        for (Earthquake current : earthquakeRepository.getVisibleEarthquakes()) {
+            Marker marker = googleMap.addMarker(new MarkerOptions()
+                                     .position(current.getLocation()));
+            marker.setTag(current);
+            if (current.equals(selectedEarthquake)) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            }
         }
 
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -313,10 +299,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .target(selectedEarthquake.getLocation())
                 .zoom(8)
                 .build();
-        CircleOptions circleOptions = new CircleOptions()
-                .center(selectedEarthquake.getLocation())
-                .radius(Math.abs(selectedEarthquake.getMagnitude()) * 1000);
-        Circle circle = googleMap.addCircle(circleOptions);
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 

@@ -4,111 +4,122 @@
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        class="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        tools:context=".MainActivity"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"/>
+    <LinearLayout
+        android:id="@+id/leftSide"
+        android:layout_width="350dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            class="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            tools:context=".MainActivity"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"/>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/searchBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:layout_below="@+id/map">
-        <LinearLayout
+        <android.support.v7.widget.CardView
+            android:id="@+id/searchBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_weight="0"
+            android:paddingHorizontal="20dp"
+            android:layout_below="@+id/map">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-                <TextView
-                    android:id="@+id/filtersInfo"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:text="No filters applied."
-                    android:gravity="center_vertical"
-                    />
-                <EditText
-                    android:id="@+id/searchInput"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:hint="Enter town/location name"
-                    android:visibility="gone"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
                     >
-                    <requestFocus/>
-                </EditText>
-                <Button
-                    android:id="@+id/toggleFiltersButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="0"
-                    android:text="Show Filters"/>
+                    <TextView
+                        android:id="@+id/filtersInfo"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:text="No filters applied."
+                        android:gravity="center_vertical"
+                        />
+                    <EditText
+                        android:id="@+id/searchInput"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:hint="Enter town/location name"
+                        android:visibility="gone"
+                        >
+                        <requestFocus/>
+                    </EditText>
+                    <Button
+                        android:id="@+id/toggleFiltersButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="0"
+                        android:text="Show Filters"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/additionalFilters"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <EditText
+                        android:id="@+id/startDateInput"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:inputType="date"
+                        android:hint="Start Date..."/>
+                    <EditText
+                        android:id="@+id/endDateInput"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:inputType="date"
+                        android:hint="End Date..."/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/filtersButtonsContainer"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/closeFiltersButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:text="Cancel"/>
+                    <Button
+                        android:id="@+id/clearFiltersButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:text="Clear"/>
+                    <Button
+                        android:id="@+id/updateFiltersButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:text="Update"/>
+                </LinearLayout>
             </LinearLayout>
-            <LinearLayout
-                android:id="@+id/additionalFilters"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone">
-                <EditText
-                    android:id="@+id/startDateInput"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:inputType="date"
-                    android:hint="Start Date..."/>
-                <EditText
-                    android:id="@+id/endDateInput"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:inputType="date"
-                    android:hint="End Date..."/>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/filtersButtonsContainer"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:id="@+id/closeFiltersButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:text="Cancel"/>
-                <Button
-                    android:id="@+id/clearFiltersButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:text="Clear"/>
-                <Button
-                    android:id="@+id/updateFiltersButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:text="Update"/>
-            </LinearLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/resultsBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/map"
+        android:layout_toRightOf="@id/leftSide"
         android:layout_alignParentTop="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp">
 
         <TextView
             android:id="@+id/resultsInfo"
@@ -124,12 +135,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:onClick="showPopup"
+            android:layout_margin="0dp"
             android:text="Stats"/>
     </LinearLayout>
 
     <ScrollView
         android:layout_below="@id/resultsBar"
-        android:layout_toRightOf="@id/map"
+        android:layout_toRightOf="@id/leftSide"
         android:id="@+id/scrollView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
@@ -137,7 +149,7 @@
             android:id="@+id/earthquake_list_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingTop="10dp"
-            />
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"/>
     </ScrollView>
 </RelativeLayout>
