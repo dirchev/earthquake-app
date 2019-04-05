@@ -9,33 +9,30 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
 import me.dirchev.mobile.earthquakeapp.data.EarthquakeLoader;
@@ -93,6 +90,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Button closeFiltersButton;
     private Button clearFiltersButton;
     private Button updateFiltersButton;
+    private Button statsMenuButton;
     private SupportMapFragment mapFragment;
     private ViewGroup additionalFilters;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
@@ -104,21 +102,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startProgress();
-        recyclerView = (RecyclerView) findViewById(R.id.earthquake_list_recycler_view);
+        recyclerView = findViewById(R.id.earthquake_list_recycler_view);
         filtersInfo = findViewById(R.id.filtersInfo);
         resultsInfo = findViewById(R.id.resultsInfo);
         additionalFilters = findViewById(R.id.additionalFilters);
         startDateInput = findViewById(R.id.startDateInput);
         endDateInput = findViewById(R.id.endDateInput);
         searchInput = findViewById(R.id.searchInput);
-        DateInputOnFonusChangeListener dateInputOnFonusChangeListener = new DateInputOnFonusChangeListener();
-        startDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
-        endDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
+        statsMenuButton = findViewById(R.id.statsMenuButton);
         toggleFiltersButton = findViewById(R.id.toggleFiltersButton);
         closeFiltersButton = findViewById(R.id.closeFiltersButton);
         clearFiltersButton = findViewById(R.id.clearFiltersButton);
         updateFiltersButton = findViewById(R.id.updateFiltersButton);
         filtersButtonsContainer = findViewById(R.id.filtersButtonsContainer);
+
+        DateInputOnFonusChangeListener dateInputOnFonusChangeListener = new DateInputOnFonusChangeListener();
+        startDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
+        endDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
 
         closeFiltersButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -189,6 +189,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         earthquakeRepository.setFilter("text", searchTerm);
     }
 
+    private void updateFiltersInput () {
+        EarthquakeRepository earthquakeRepository = dataStore.getEarthquakeRepository();
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-YYYY");
+        Date startDate = (Date) earthquakeRepository.getFilters().get("startDate");
+        Date endDate = (Date) earthquakeRepository.getFilters().get("endDate");
+        String text = (String) earthquakeRepository.getFilters().get("text");
+        startDateInput.setText(startDate == null ? "" : format.format(startDate));
+        endDateInput.setText(endDate == null ? "" : format.format(endDate));
+        searchInput.setText(text == null ? "" : text);
+    }
+
     private void updateFiltersVisibility (boolean isVisible) {
         if (isVisible) {
             toggleFiltersButton.setVisibility(View.GONE);
@@ -221,9 +232,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
                             @Override
                             public void onChange(EarthquakeRepository earthquakeRepository) {
+                                recyclerView.scrollToPosition(earthquakeRepository.getSelectedEarthquakeIndex());
                                 radapter.notifyDataSetChanged();
                                 filtersInfo.setText(earthquakeRepository.getFiltersInfoString());
                                 resultsInfo.setText(earthquakeRepository.gerResultsInfoString());
+                                updateFiltersInput();
 
                             }
                         });
@@ -254,25 +267,93 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
             @Override
             public void onChange(EarthquakeRepository earthquakeRepository) {
-                MainActivity.this.setMapLocationAndMarker(earthquakeRepository.getSelectedEarthquake(), map);
+                MainActivity.this.setMapLocationAndMarkers(earthquakeRepository, map);
             }
         });
-        this.setMapLocationAndMarker(earthquakeRepository.getSelectedEarthquake(), map);
+        this.setMapLocationAndMarkers(earthquakeRepository, map);
     }
 
-    private void setMapLocationAndMarker (Earthquake earthquake, GoogleMap googleMap) {
+    private void setMapLocationAndMarkers (final EarthquakeRepository earthquakeRepository, GoogleMap googleMap) {
+        Earthquake selectedEarthquake = earthquakeRepository.getSelectedEarthquake();
         googleMap.clear();
-        if (earthquake == null) return;
-        LatLng place = earthquake.getLocation();
-//        googleMap.addMarker(new MarkerOptions().position(place).title("Here it is"));
+
+        final Map<String, Earthquake> ewnsEarthquakes = earthquakeRepository.getEWNSMap();
+        if (ewnsEarthquakes.get("South") != null) {
+            Earthquake earthquake = ewnsEarthquakes.get("South");
+            Marker southMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Southern earthquake"));
+            southMarker.setTag(earthquake);
+        }
+        if (ewnsEarthquakes.get("West") != null) {
+            Earthquake earthquake = ewnsEarthquakes.get("West");
+            Marker westMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Western earthquake"));
+            westMarker.setTag(earthquake);
+        }
+        if (ewnsEarthquakes.get("East") != null) {
+            Earthquake earthquake = ewnsEarthquakes.get("East");
+            Marker eastMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Eastern earthquake"));
+            eastMarker.setTag(earthquake);
+        }
+        if (ewnsEarthquakes.get("North") != null) {
+            Earthquake earthquake = ewnsEarthquakes.get("North");
+            Marker northMarker = googleMap.addMarker(new MarkerOptions().position(earthquake.getLocation()).title("Northern earthquake"));
+            northMarker.setTag(earthquake);
+        }
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                earthquakeRepository.setSelectedEarthquake((Earthquake) marker.getTag());
+                return true;
+            }
+        });
+
+        // show earth quake on map
+        if (selectedEarthquake == null) return;
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(earthquake.getLocation())
-                .zoom(10)
+                .target(selectedEarthquake.getLocation())
+                .zoom(8)
                 .build();
         CircleOptions circleOptions = new CircleOptions()
-                .center(earthquake.getLocation())
-                .radius(Math.abs(earthquake.getMagnitude()) * 1000);
+                .center(selectedEarthquake.getLocation())
+                .radius(Math.abs(selectedEarthquake.getMagnitude()) * 1000);
         Circle circle = googleMap.addCircle(circleOptions);
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    public void showPopup(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                EarthquakeRepository repository = MainActivity.this.dataStore.getEarthquakeRepository();
+                switch (item.getItemId()) {
+                    case R.id.southest:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("South"));
+                        return true;
+                    case R.id.eastest:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("East"));
+                        return true;
+                    case R.id.westest:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("West"));
+                        return true;
+                    case R.id.northest:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("North"));
+                        return true;
+                    case R.id.shallow:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Shallow"));
+                        return true;
+                    case R.id.deepest:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Deep"));
+                        return true;
+                    case R.id.magnitude:
+                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Magnitude"));
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        popupMenu.inflate(R.menu.statistics_menu);
+        popupMenu.show();
     }
 }
