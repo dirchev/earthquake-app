@@ -65,7 +65,6 @@ public class EarthquakeParser {
                     }
                 }
                 eventType = xpp.next();
-
             }
         }
         catch (XmlPullParserException ae1)
