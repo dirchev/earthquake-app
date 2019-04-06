@@ -23,26 +23,15 @@ public class EarthquakeRepository {
     List<Earthquake> filteredEarthquakes;
     Map<String, Earthquake> ewnsEarthquakes;
     Map<String, Object> filters;
-    boolean showStatsOnly;
 
     List<EarthquakeRepositoryChangeListener> changeListeners;
     int selectedEarthquakeIndex = -1;
-
-    public static String getStringFromEarthquakePubDate (Date date) {
-        return date.getDate() + "/" + date.getMonth() + "/" + date.getYear();
-    }
 
     public EarthquakeRepository () {
         this.earthquakeList = new LinkedList<>();
         this.changeListeners = new LinkedList<>();
         this.filters = new HashMap<>();
         this.filters = new HashMap<>();
-        showStatsOnly = false;
-    }
-
-    public void toggleStats () {
-        this.showStatsOnly = !this.showStatsOnly;
-        processFilteredEarthquakes();
     }
 
     public void setFilter(String filterName, Object filterValue) {
@@ -165,7 +154,7 @@ public class EarthquakeRepository {
         return result;
     }
 
-    public String gerResultsInfoString () {
+    public String getResultsInfoString() {
         int numberOfItems = this.getVisibleEarthquakes().size();
         if (numberOfItems == 0) {
             return "No earthquakes found for these filters";
