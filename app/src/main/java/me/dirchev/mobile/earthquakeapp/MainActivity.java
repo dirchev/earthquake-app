@@ -269,9 +269,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
         Timer timer = new Timer("earthquakes updater");
         final URL finalUrl = url;
+        // schedule a task to be executed every X ms, starting now
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                // run on the main thread so that the async task can
+                // properly access the earthquake repository.
+                // the asyncTask will again open a thread to do its
+                // background taks.
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
