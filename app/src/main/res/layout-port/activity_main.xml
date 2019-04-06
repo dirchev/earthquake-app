@@ -24,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:paddingLeft="10dp"
             >
             <TextView
                 android:id="@+id/filtersInfo"
@@ -111,6 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingLeft="10dp"
         android:layout_weight="0">
         <TextView
             android:id="@+id/resultsInfo"
