@@ -111,7 +111,6 @@
         </android.support.v7.widget.CardView>
     </LinearLayout>
 
-
     <LinearLayout
         android:id="@+id/resultsBar"
         android:layout_width="match_parent"
