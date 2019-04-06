@@ -1,5 +1,6 @@
 package me.dirchev.mobile.earthquakeapp.models;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.text.DateFormat;
@@ -10,6 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+
+import me.dirchev.mobile.earthquakeapp.R;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -125,22 +128,27 @@ public class EarthquakeRepository {
         this.changeListeners.remove(listener);
     }
 
-    public String getFiltersInfoString () {
+    /**
+     * Generates a summary text based on the filters
+     * that have been applied.
+     * @return summary of filters
+     */
+    public String getFiltersInfoString (Context context) {
         LinkedList<String> resultList = new LinkedList<>();
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.date_format));
         if (this.filters.containsKey("text") && !((String) this.filters.get("text")).isEmpty()) {
             resultList.add("\"" + this.filters.get("text") + "\"");
         }
         if (this.filters.containsKey("startDate")) {
             resultList.add(dateFormat.format((Date) this.filters.get("startDate")));
         } else {
-            resultList.add("beginning");
+            resultList.add(context.getString(R.string.beginning));
         }
 
         if (this.filters.containsKey("endDate")) {
             resultList.add(dateFormat.format((Date) this.filters.get("endDate")));
         } else {
-            resultList.add("today");
+            resultList.add(context.getString(R.string.today));
         }
 
         String result = "";
@@ -154,12 +162,17 @@ public class EarthquakeRepository {
         return result;
     }
 
-    public String getResultsInfoString() {
+    /**
+     * Generates a result string based on the filtered
+     * earthquakes
+     * @return results info string
+     */
+    public String getResultsInfoString(Context context) {
         int numberOfItems = this.getVisibleEarthquakes().size();
         if (numberOfItems == 0) {
-            return "No earthquakes found for these filters";
+            return context.getString(R.string.no_earthquakes_found_message);
         } else {
-            return "Showing " + numberOfItems + " earthquakes.";
+            return String.format(context.getString(R.string.showing_number_earthquakes_message), numberOfItems);
         }
     }
 

@@ -18,7 +18,6 @@ import java.util.Locale;
  * 2019 February 21
  */
 public class Earthquake {
-    private String id;
     private String title;
     private String link;
     private Date pubDate;
@@ -56,7 +55,7 @@ public class Earthquake {
 
     public void parsePubDate (String pubDateString) throws ParseException {
         DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy kk:mm:ss", Locale.ENGLISH);
-        this.pubDate = df.parse(pubDateString);
+        this.setPubDate(df.parse(pubDateString));
     }
 
     public String getCategory() {
@@ -79,7 +78,7 @@ public class Earthquake {
         String[] parts = locationString.split(",");
         double lat = Double.parseDouble(parts[0]);
         double lon = Double.parseDouble(parts[1]);
-        this.location = new LatLng(lat, lon);
+        this.setLocation(new LatLng(lat, lon));
     }
 
     public String getLocationName() {
@@ -112,8 +111,7 @@ public class Earthquake {
 
     public void parseDepth (String depthString) {
         String[] parts = depthString.split(" ");
-
-        this.depth = new Depth(Double.parseDouble(parts[0]), parts[1]);
+        this.setDepth(new Depth(Double.parseDouble(parts[0]), parts[1]));
     }
 
     @Override
@@ -175,6 +173,14 @@ public class Earthquake {
         @Override
         public String toString() {
             return Double.toString(this.value) + this.measure;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+        public String getMeasure() {
+            return measure;
         }
     }
 }

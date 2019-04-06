@@ -88,7 +88,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Button clearFiltersButton;
     private Button updateFiltersButton;
     private SupportMapFragment mapFragment;
-    private ViewGroup additionalFilters;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
     EarthquakeDataStore dataStore = EarthquakeDataStore.getInstance();
 
@@ -103,7 +102,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         recyclerView = findViewById(R.id.earthquake_list_recycler_view);
         filtersInfo = findViewById(R.id.filtersInfo);
         resultsInfo = findViewById(R.id.resultsInfo);
-        additionalFilters = findViewById(R.id.additionalFilters);
         startDateInput = findViewById(R.id.startDateInput);
         endDateInput = findViewById(R.id.endDateInput);
         searchInput = findViewById(R.id.searchInput);
@@ -187,7 +185,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateFiltersInput () {
         EarthquakeRepository earthquakeRepository = dataStore.getEarthquakeRepository();
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-YYYY");
+        SimpleDateFormat format = new SimpleDateFormat(getString(R.string.date_format));
         Date startDate = (Date) earthquakeRepository.getFilters().get("startDate");
         Date endDate = (Date) earthquakeRepository.getFilters().get("endDate");
         String text = (String) earthquakeRepository.getFilters().get("text");
@@ -224,8 +222,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             public void onChange(EarthquakeRepository earthquakeRepository) {
                                 recyclerView.scrollToPosition(earthquakeRepository.getSelectedEarthquakeIndex());
                                 radapter.notifyDataSetChanged();
-                                filtersInfo.setText(earthquakeRepository.getFiltersInfoString());
-                                resultsInfo.setText(earthquakeRepository.getResultsInfoString());
+                                filtersInfo.setText(earthquakeRepository.getFiltersInfoString(MainActivity.this));
+                                resultsInfo.setText(earthquakeRepository.getResultsInfoString(MainActivity.this));
                                 updateFiltersInput();
 
                             }

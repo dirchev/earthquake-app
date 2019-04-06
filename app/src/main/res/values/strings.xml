@@ -1,4 +1,15 @@
 <resources>
-    <string name="app_name">EarthquakeApp</string>
-    <string name="title_activity_maps2">Map</string>
+    <string name="app_name">Earthquake App</string>
+    <string name="no_earthquakes_found_message">No earthquakes found for these filters</string>
+    <string name="showing_number_earthquakes_message">Showing %d earthquakes.</string>
+    <string name="beginning">beginning</string>
+    <string name="today">today</string>
+    <string name="filter_by_context_menu_heading">Filter by...</string>
+    <string name="filter_by_context_menu_location_text">location</string>
+    <string name="filter_by_context_menu_date_text">date</string>
+    <string name="datetime_format">dd MMM YYYY, hh:mm</string>
+    <string name="magnitude_info">Magnitude: %.1f</string>
+    <string name="depth_info">Depth: %.1f%s</string>
+    <string name="date_info">Date: %s</string>
+    <string name="date_format">dd-MM-YYYY</string>
 </resources>
