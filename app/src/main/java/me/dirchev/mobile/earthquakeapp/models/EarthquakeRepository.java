@@ -28,6 +28,8 @@ public class EarthquakeRepository {
     Map<String, Object> filters;
     List<EarthquakeRepositoryChangeListener> changeListeners;
     int selectedEarthquakeIndex = -1;
+    private boolean loading = true;
+    private Date updatedOn;
 
     public EarthquakeRepository () {
         this.earthquakeList = new LinkedList<>();
@@ -215,6 +217,21 @@ public class EarthquakeRepository {
 
     public void refreshEarthquakes(LinkedList<Earthquake> fetchedEarthquakes) {
         this.earthquakeList = fetchedEarthquakes;
+        this.loading = false;
+        this.updatedOn = new Date();
         this.processFilteredEarthquakes();
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        this.updateAllListeners();
+    }
+
+    public boolean getLoading() {
+        return loading;
+    }
+
+    public Date getUpdatedOn() {
+        return updatedOn;
     }
 }

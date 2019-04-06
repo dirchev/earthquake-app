@@ -7,7 +7,7 @@
     <string name="filter_by_context_menu_heading">Filter by...</string>
     <string name="filter_by_context_menu_location_text">location</string>
     <string name="filter_by_context_menu_date_text">date</string>
-    <string name="datetime_format">dd MMM YYYY, hh:mm</string>
+    <string name="datetime_format">dd MMM YYYY, hh:mm:ss</string>
     <string name="magnitude_info">Magnitude: %.1f</string>
     <string name="depth_info">Depth: %.1f%s</string>
     <string name="date_info">Date: %s</string>
@@ -20,4 +20,7 @@
     <string name="clear_filters_button_text">Clear</string>
     <string name="update_filters_button_text">Update</string>
     <string name="statistics_button_text">Statistics</string>
+    <string name="dsa">dd-MM-YYYY HH:mm</string>
+    <string name="updated_on_info_text">Updated on: %s</string>
+    <string name="loading_earthquakes_message">Loading earthquakes...</string>
 </resources>

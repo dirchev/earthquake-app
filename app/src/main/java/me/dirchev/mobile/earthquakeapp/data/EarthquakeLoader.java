@@ -1,5 +1,6 @@
 package me.dirchev.mobile.earthquakeapp.data;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -20,51 +21,50 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
  * Programme of study:      Computing
  * 2019 February 21
  */
-public class EarthquakeLoader implements Runnable {
-    private String url;
-    private EarthquakeParsedEventListener onReady;
-    private EarthquakeRepository repository;
-
-    public EarthquakeLoader(String url, EarthquakeParsedEventListener onReady) {
-        this.url = url;
-        this.onReady = onReady;
+public class EarthquakeLoader extends AsyncTask<URL, Void, LinkedList<Earthquake>> {
+    EarthquakeRepository repository;
+    public EarthquakeLoader(EarthquakeRepository repository) {
+        super();
+        this.repository = repository;
     }
 
-    private String getXML () {
-        URL aurl;
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        repository.setLoading(true);
+    }
+
+    private String getXML (URL url) {
         URLConnection yc;
         BufferedReader in = null;
         String inputLine = "";
         String xmlResult = "";
 
-        try
-        {
-            aurl = new URL(url);
-            yc = aurl.openConnection();
+        try {
+            yc = url.openConnection();
             in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-            while ((inputLine = in.readLine()) != null)
-            {
+            while ((inputLine = in.readLine()) != null) {
                 xmlResult = xmlResult + inputLine;
 
             }
             in.close();
-        }
-        catch (IOException ae)
-        {
+        } catch (IOException ae) {
             Log.e("MyTag", "ioexception");
         }
         return xmlResult;
     }
 
-    private LinkedList<Earthquake> parseXML (String xml) {
-        EarthquakeParser parser = new EarthquakeParser(xml);
-        return parser.parse();
+    @Override
+    protected LinkedList<Earthquake> doInBackground(URL... urls) {
+        URL url = urls[0];
+        String rawXML = this.getXML(url);
+        EarthquakeParser earthquakeParser = new EarthquakeParser(rawXML);
+        return earthquakeParser.parse();
     }
 
     @Override
-    public void run() {
-        String xmlResult = this.getXML();
-        LinkedList<Earthquake> earthquakes = this.parseXML(xmlResult);
-        onReady.run(earthquakes);
+    protected void onPostExecute(LinkedList<Earthquake> earthquakes) {
+        super.onPostExecute(earthquakes);
+        repository.refreshEarthquakes(earthquakes);
     }
 }

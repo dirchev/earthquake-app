@@ -1,5 +1,6 @@
 package me.dirchev.mobile.earthquakeapp;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.net.ParseException;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,11 +28,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
 import me.dirchev.mobile.earthquakeapp.data.EarthquakeLoader;
@@ -82,6 +87,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private ViewGroup filtersSummary;
     private RecyclerView recyclerView;
     private TextView filtersInfo;
+    private TextView fetchInfoTextView;
     private TextView resultsInfo;
     private EditText startDateInput;
     private EditText endDateInput;
@@ -100,6 +106,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fetchInfoTextView = findViewById(R.id.fetchInfoTextView);
         searchBox = findViewById(R.id.searchBox);
         filtersSummary = findViewById(R.id.filtersSummary);
         recyclerView = findViewById(R.id.earthquake_list_recycler_view);
@@ -239,6 +246,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         if (selectedEarthquakeIndex != -1) {
             recyclerView.scrollToPosition(selectedEarthquakeIndex);
         }
+        if (earthquakeRepository.getLoading()) {
+            fetchInfoTextView.setText(getString(R.string.loading_earthquakes_message));
+        } else {
+            SimpleDateFormat format = new SimpleDateFormat(getString(R.string.datetime_format));
+            fetchInfoTextView.setText(String.format(getString(R.string.updated_on_info_text), format.format(earthquakeRepository.getUpdatedOn())));
+        }
         radapter.notifyDataSetChanged();
         filtersInfo.setText(earthquakeRepository.getFiltersInfoString(MainActivity.this));
         resultsInfo.setText(earthquakeRepository.getResultsInfoString(MainActivity.this));
@@ -247,20 +260,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void startProgress()
     {
-        EarthquakeLoader loader;
-        loader = new EarthquakeLoader(urlSource, new EarthquakeParsedEventListener() {
+        URL url = null;
+        try {
+            url = new URL(urlSource);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Could not parse fetch URL", Toast.LENGTH_LONG);
+        }
+        Timer timer = new Timer("earthquakes updater");
+        final URL finalUrl = url;
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void run(final LinkedList<Earthquake> fetchedEarthquakes) {
-                MainActivity.this.runOnUiThread(new Runnable()
-                {
+            public void run() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
                     public void run() {
-                        dataStore.getEarthquakeRepository().refreshEarthquakes(fetchedEarthquakes);
+                        EarthquakeLoader loader = new EarthquakeLoader(dataStore.getEarthquakeRepository());
+                        loader.execute(finalUrl);
                     }
                 });
             }
-        });
-        new Thread(loader).start();
-        Timer fetchTimes = new Timer("fetch earthquakes", true);
+        }, 0, 10000);
     }
     /**
      * Manipulates the map once available.
