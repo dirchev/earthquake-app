@@ -29,6 +29,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.Timer;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
 import me.dirchev.mobile.earthquakeapp.data.EarthquakeLoader;
@@ -48,7 +50,7 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepositoryChangeListener
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 {
     private DatePickerDialog datePickerDialog;
-    class DateInputOnFonusChangeListener implements View.OnFocusChangeListener {
+    class DateInputOnFocusChangeListener implements View.OnFocusChangeListener {
         public void onFocusChange(final View v, boolean hasFocus) {
             final EditText currentDateInput = (EditText) v;
             int mYear, mMonth, mDay;
@@ -75,6 +77,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+    private RAdapter radapter;
     private ViewGroup searchBox;
     private ViewGroup filtersSummary;
     private RecyclerView recyclerView;
@@ -96,7 +99,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startProgress();
+
         searchBox = findViewById(R.id.searchBox);
         filtersSummary = findViewById(R.id.filtersSummary);
         recyclerView = findViewById(R.id.earthquake_list_recycler_view);
@@ -109,11 +112,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         closeFiltersButton = findViewById(R.id.closeFiltersButton);
         clearFiltersButton = findViewById(R.id.clearFiltersButton);
         updateFiltersButton = findViewById(R.id.updateFiltersButton);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        DateInputOnFonusChangeListener dateInputOnFonusChangeListener = new DateInputOnFonusChangeListener();
-        startDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
-        endDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
+        // set up the listing
+        radapter = new RAdapter(MainActivity.this);
+        recyclerView.setAdapter(radapter);
 
+        // set up date inputs
+        DateInputOnFocusChangeListener dateInputOnFocusChangeListener = new DateInputOnFocusChangeListener();
+        startDateInput.setOnFocusChangeListener(dateInputOnFocusChangeListener);
+        endDateInput.setOnFocusChangeListener(dateInputOnFocusChangeListener);
+
+        // set up filter buttons
         closeFiltersButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,6 +147,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 updateFiltersVisibility(true);
+            }
+        });
+
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        mapFragment.getMapAsync(MainActivity.this);
+
+        // fetch/process already fetched earthquakes
+        processEarthquakeRepositoryChange();
+        if (savedInstanceState == null) {
+            startProgress();
+        }
+        dataStore.getEarthquakeRepository().subscribeToChange(new EarthquakeRepositoryChangeListener() {
+            @Override
+            public void onChange(EarthquakeRepository earthquakeRepository) {
+                MainActivity.this.processEarthquakeRepositoryChange();
             }
         });
     }
@@ -206,37 +233,34 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void processEarthquakeRepositoryChange () {
+        EarthquakeRepository earthquakeRepository = dataStore.getEarthquakeRepository();
+        int selectedEarthquakeIndex = earthquakeRepository.getSelectedEarthquakeIndex();
+        if (selectedEarthquakeIndex != -1) {
+            recyclerView.scrollToPosition(selectedEarthquakeIndex);
+        }
+        radapter.notifyDataSetChanged();
+        filtersInfo.setText(earthquakeRepository.getFiltersInfoString(MainActivity.this));
+        resultsInfo.setText(earthquakeRepository.getResultsInfoString(MainActivity.this));
+        updateFiltersInput();
+    }
+
     public void startProgress()
     {
         EarthquakeLoader loader;
-        loader = new EarthquakeLoader(urlSource, dataStore.getEarthquakeRepository(), new EarthquakeParsedEventListener() {
+        loader = new EarthquakeLoader(urlSource, new EarthquakeParsedEventListener() {
             @Override
-            public void run(final EarthquakeRepository earthquakeRepository) {
+            public void run(final LinkedList<Earthquake> fetchedEarthquakes) {
                 MainActivity.this.runOnUiThread(new Runnable()
                 {
                     public void run() {
-                        final RAdapter radapter = new RAdapter(MainActivity.this);
-                        recyclerView.setAdapter(radapter);
-                        earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
-                            @Override
-                            public void onChange(EarthquakeRepository earthquakeRepository) {
-                                recyclerView.scrollToPosition(earthquakeRepository.getSelectedEarthquakeIndex());
-                                radapter.notifyDataSetChanged();
-                                filtersInfo.setText(earthquakeRepository.getFiltersInfoString(MainActivity.this));
-                                resultsInfo.setText(earthquakeRepository.getResultsInfoString(MainActivity.this));
-                                updateFiltersInput();
-
-                            }
-                        });
-                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-                        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-                        mapFragment.getMapAsync(MainActivity.this);
+                        dataStore.getEarthquakeRepository().refreshEarthquakes(fetchedEarthquakes);
                     }
                 });
             }
         });
         new Thread(loader).start();
+        Timer fetchTimes = new Timer("fetch earthquakes", true);
     }
     /**
      * Manipulates the map once available.

@@ -31,7 +31,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="No filters applied."
                 android:gravity="center_vertical"
                 />
             <Button
@@ -39,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="0"
-                android:text="Show Filters"/>
+                android:text="@string/show_filters_button"/>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
@@ -57,9 +56,9 @@
             <EditText
                 android:id="@+id/searchInput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:hint="Enter town/location name"
+                android:hint="@string/town_location_edit_text_hint"
                 />
             <LinearLayout
                 android:id="@+id/additionalFilters"
@@ -72,14 +71,14 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:inputType="date"
-                    android:hint="Start Date..."/>
+                    android:hint="@string/start_date_edit_text_hint"/>
                 <EditText
                     android:id="@+id/endDateInput"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:inputType="date"
-                    android:hint="End Date..."/>
+                    android:hint="@string/end_date_edit_text_hint"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -90,19 +89,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:text="Cancel"/>
+                    android:text="@string/cancel_filters_button_text"/>
                 <Button
                     android:id="@+id/clearFiltersButton"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:text="Clear"/>
+                    android:text="@string/clear_filters_button_text"/>
                 <Button
                     android:id="@+id/updateFiltersButton"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:text="Update"/>
+                    android:text="@string/update_filters_button_text"/>
             </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
@@ -119,19 +118,17 @@
             android:layout_width="fill_parent"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Number of items"/>
+            android:paddingTop="10dp"/>
         <Button
             android:id="@+id/statsMenuButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:onClick="showPopup"
-            android:text="Statistics"/>
+            android:text="@string/statistics_button_text"/>
     </LinearLayout>
 
     <ScrollView
-        android:layout_below="@id/resultsBar"
         android:id="@+id/scrollView"
         android:layout_weight="1"
         android:layout_width="fill_parent"

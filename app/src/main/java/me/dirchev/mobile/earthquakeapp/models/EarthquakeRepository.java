@@ -26,15 +26,15 @@ public class EarthquakeRepository {
     List<Earthquake> filteredEarthquakes;
     Map<String, Earthquake> ewnsEarthquakes;
     Map<String, Object> filters;
-
     List<EarthquakeRepositoryChangeListener> changeListeners;
     int selectedEarthquakeIndex = -1;
 
     public EarthquakeRepository () {
         this.earthquakeList = new LinkedList<>();
+        this.filteredEarthquakes = new LinkedList<>();
+        this.ewnsEarthquakes = new HashMap<>();
+        this.filters = new HashMap<>();
         this.changeListeners = new LinkedList<>();
-        this.filters = new HashMap<>();
-        this.filters = new HashMap<>();
     }
 
     public void setFilter(String filterName, Object filterValue) {
@@ -211,5 +211,10 @@ public class EarthquakeRepository {
 
     public Map<String, Object> getFilters() {
         return this.filters;
+    }
+
+    public void refreshEarthquakes(LinkedList<Earthquake> fetchedEarthquakes) {
+        this.earthquakeList = fetchedEarthquakes;
+        this.processFilteredEarthquakes();
     }
 }

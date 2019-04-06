@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.LinkedList;
 import java.util.List;
 
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
@@ -24,10 +25,9 @@ public class EarthquakeLoader implements Runnable {
     private EarthquakeParsedEventListener onReady;
     private EarthquakeRepository repository;
 
-    public EarthquakeLoader(String url, EarthquakeRepository repository, EarthquakeParsedEventListener onReady) {
+    public EarthquakeLoader(String url, EarthquakeParsedEventListener onReady) {
         this.url = url;
         this.onReady = onReady;
-        this.repository = repository;
     }
 
     private String getXML () {
@@ -56,15 +56,15 @@ public class EarthquakeLoader implements Runnable {
         return xmlResult;
     }
 
-    private void parseXML (String xml, EarthquakeRepository repository) {
-        EarthquakeParser parser = new EarthquakeParser(xml, repository);
-        parser.parse();
+    private LinkedList<Earthquake> parseXML (String xml) {
+        EarthquakeParser parser = new EarthquakeParser(xml);
+        return parser.parse();
     }
 
     @Override
     public void run() {
         String xmlResult = this.getXML();
-        this.parseXML(xmlResult, repository);
-        onReady.run(repository);
+        LinkedList<Earthquake> earthquakes = this.parseXML(xmlResult);
+        onReady.run(earthquakes);
     }
 }

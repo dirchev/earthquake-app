@@ -23,14 +23,14 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
  */
 public class EarthquakeParser {
     String xmlString;
-    EarthquakeRepository earthquakeRepository;
+    LinkedList<Earthquake> earthquakes;
 
-    EarthquakeParser (String xmlString, EarthquakeRepository earthquakeRepository) {
+    EarthquakeParser (String xmlString) {
         this.xmlString = xmlString;
-        this.earthquakeRepository = earthquakeRepository;
+        earthquakes = new LinkedList<>();
     }
 
-    public void parse() {
+    public LinkedList<Earthquake> parse() {
         Earthquake earthquake = null;
 
         try {
@@ -60,7 +60,7 @@ public class EarthquakeParser {
                     }
                 } else if (eventType == XmlPullParser.END_TAG) {
                     if (xpp.getName().equalsIgnoreCase("item")) {
-                        earthquakeRepository.addEarthquake(earthquake);
+                        earthquakes.add(earthquake);
                         earthquake = null;
                     }
                 }
@@ -75,5 +75,6 @@ public class EarthquakeParser {
         {
             Log.e("MyTag","IO error during parsing");
         }
+        return earthquakes;
     }
 }

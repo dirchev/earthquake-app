@@ -1,5 +1,6 @@
 package me.dirchev.mobile.earthquakeapp.data;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
@@ -13,5 +14,5 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
  * 2019 February 21
  */
 public interface EarthquakeParsedEventListener{
-    void run (EarthquakeRepository earthquakesChannelList);
+    void run(LinkedList<Earthquake> earthquakes);
 }
