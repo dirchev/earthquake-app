@@ -75,7 +75,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-    private ViewGroup filtersButtonsContainer;
+    private ViewGroup searchBox;
+    private ViewGroup filtersSummary;
     private RecyclerView recyclerView;
     private TextView filtersInfo;
     private TextView resultsInfo;
@@ -97,6 +98,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startProgress();
+        searchBox = findViewById(R.id.searchBox);
+        filtersSummary = findViewById(R.id.filtersSummary);
         recyclerView = findViewById(R.id.earthquake_list_recycler_view);
         filtersInfo = findViewById(R.id.filtersInfo);
         resultsInfo = findViewById(R.id.resultsInfo);
@@ -108,7 +111,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         closeFiltersButton = findViewById(R.id.closeFiltersButton);
         clearFiltersButton = findViewById(R.id.clearFiltersButton);
         updateFiltersButton = findViewById(R.id.updateFiltersButton);
-        filtersButtonsContainer = findViewById(R.id.filtersButtonsContainer);
 
         DateInputOnFonusChangeListener dateInputOnFonusChangeListener = new DateInputOnFonusChangeListener();
         startDateInput.setOnFocusChangeListener(dateInputOnFonusChangeListener);
@@ -196,19 +198,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateFiltersVisibility (boolean isVisible) {
         if (isVisible) {
-            toggleFiltersButton.setVisibility(View.GONE);
+            searchBox.setVisibility(View.VISIBLE);
+            filtersSummary.setVisibility(View.GONE);
             mapFragment.getView().setVisibility(View.GONE);
-            additionalFilters.setVisibility(View.VISIBLE);
-            filtersInfo.setVisibility(View.GONE);
-            searchInput.setVisibility(View.VISIBLE);
-            filtersButtonsContainer.setVisibility(View.VISIBLE);
         } else {
-            toggleFiltersButton.setVisibility(View.VISIBLE);
+            searchBox.setVisibility(View.GONE);
+            filtersSummary.setVisibility(View.VISIBLE);
             mapFragment.getView().setVisibility(View.VISIBLE);
-            additionalFilters.setVisibility(View.GONE);
-            filtersInfo.setVisibility(View.VISIBLE);
-            searchInput.setVisibility(View.GONE);
-            filtersButtonsContainer.setVisibility(View.GONE);
         }
     }
 

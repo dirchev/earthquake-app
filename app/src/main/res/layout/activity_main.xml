@@ -1,5 +1,5 @@
 <!--  MPD XML Starter code Semester B Session 2018 2019  -->
-<RelativeLayout android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -11,55 +11,60 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         tools:context=".MainActivity"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"/>
+        android:layout_weight="0"/>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/filtersSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:layout_weight="0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:id="@+id/filtersInfo"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="No filters applied."
+                android:gravity="center_vertical"
+                />
+            <Button
+                android:id="@+id/toggleFiltersButton"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0"
+                android:text="Show Filters"/>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
         android:id="@+id/searchBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:layout_below="@+id/map">
+        android:paddingHorizontal="10dp"
+        android:visibility="gone"
+        android:layout_weight="0">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <LinearLayout
+            <EditText
+                android:id="@+id/searchInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-                <TextView
-                    android:id="@+id/filtersInfo"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:text="No filters applied."
-                    android:gravity="center_vertical"
-                    />
-                <EditText
-                    android:id="@+id/searchInput"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:hint="Enter town/location name"
-                    android:visibility="gone"
-                    >
-                    <requestFocus/>
-                </EditText>
-                <Button
-                    android:id="@+id/toggleFiltersButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="0"
-                    android:text="Show Filters"/>
-            </LinearLayout>
+                android:layout_weight="1"
+                android:hint="Enter town/location name"
+                />
             <LinearLayout
                 android:id="@+id/additionalFilters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:orientation="horizontal">
                 <EditText
                     android:id="@+id/startDateInput"
                     android:layout_width="fill_parent"
@@ -76,10 +81,9 @@
                     android:hint="End Date..."/>
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/filtersButtonsContainer"
-                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                >
                 <Button
                     android:id="@+id/closeFiltersButton"
                     android:layout_width="wrap_content"
@@ -105,10 +109,9 @@
     <LinearLayout
         android:id="@+id/resultsBar"
         android:layout_width="match_parent"
-        android:layout_below="@+id/searchBox"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
+        android:orientation="horizontal"
+        android:layout_weight="0">
         <TextView
             android:id="@+id/resultsInfo"
             android:layout_width="fill_parent"
@@ -116,20 +119,19 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:text="Number of items"/>
-
         <Button
             android:id="@+id/statsMenuButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:onClick="showPopup"
-            android:text="Stats"/>
+            android:text="Statistics"/>
     </LinearLayout>
-
 
     <ScrollView
         android:layout_below="@id/resultsBar"
         android:id="@+id/scrollView"
+        android:layout_weight="1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
         <android.support.v7.widget.RecyclerView
@@ -139,4 +141,4 @@
             android:paddingTop="10dp"
             />
     </ScrollView>
-</RelativeLayout>
+</LinearLayout>
