@@ -1,9 +1,6 @@
 package me.dirchev.mobile.earthquakeapp;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -25,15 +22,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
 import me.dirchev.mobile.earthquakeapp.data.EarthquakeLoader;
@@ -234,7 +229,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 recyclerView.scrollToPosition(earthquakeRepository.getSelectedEarthquakeIndex());
                                 radapter.notifyDataSetChanged();
                                 filtersInfo.setText(earthquakeRepository.getFiltersInfoString());
-                                resultsInfo.setText(earthquakeRepository.gerResultsInfoString());
+                                resultsInfo.setText(earthquakeRepository.getResultsInfoString());
                                 updateFiltersInput();
 
                             }
@@ -293,13 +288,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        // show earth quake on map
-        if (selectedEarthquake == null) return;
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(selectedEarthquake.getLocation())
-                .zoom(8)
-                .build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        CameraPosition.Builder cameraPositionBuilder = new CameraPosition.Builder();
+        if (selectedEarthquake == null) {
+            final LatLng UK_COORDINATES = new LatLng(55.1719958,-6.2549709);
+            // center map
+            cameraPositionBuilder.target(UK_COORDINATES).zoom(5);
+        } else {
+            // center on earthquake location
+            cameraPositionBuilder.target(selectedEarthquake.getLocation()).zoom(8);
+        }
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPositionBuilder.build()));
     }
 
     public void showPopup(View v) {
