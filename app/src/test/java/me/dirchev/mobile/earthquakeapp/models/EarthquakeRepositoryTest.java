@@ -130,6 +130,39 @@ public class EarthquakeRepositoryTest {
     }
 
     @Test
+    public void subscribeToChangeNotifiedOnLoadingStateChange() {
+        final boolean[] listenerNotified = {false};
+        EarthquakeRepository earthquakeRepository = new EarthquakeRepository();
+        LinkedList<Earthquake> earthquakes = this.getFakeEarthquakes(10);
+        earthquakeRepository.refreshEarthquakes(earthquakes);
+        earthquakeRepository.subscribeToChange(new EarthquakeRepositoryChangeListener() {
+            @Override
+            public void onChange(EarthquakeRepository earthquakeRepository) {
+                listenerNotified[0] = true;
+            }
+        });
+        earthquakeRepository.setLoading(false);
+        Assert.assertEquals(listenerNotified[0], true);
+    }
+
+    @Test
+    public void unsubscribeToChange() {
+        final int[] notifiedTimes = {0};
+        EarthquakeRepository earthquakeRepository = new EarthquakeRepository();
+        EarthquakeRepositoryChangeListener listener = new EarthquakeRepositoryChangeListener() {
+            @Override
+            public void onChange(EarthquakeRepository earthquakeRepository) {
+                notifiedTimes[0]++;
+            }
+        };
+        earthquakeRepository.subscribeToChange(listener);
+        earthquakeRepository.setLoading(false);
+        earthquakeRepository.unsubscribeToChange(listener);
+        earthquakeRepository.setLoading(true);
+        Assert.assertEquals(notifiedTimes[0], 1);
+    }
+
+    @Test
     public void getStatisticsMap() {
         EarthquakeRepository earthquakeRepository = new EarthquakeRepository();
         LinkedList<Earthquake> earthquakes = this.getFakeEarthquakes(4);
@@ -177,5 +210,45 @@ public class EarthquakeRepositoryTest {
         earthquakeRepository.refreshEarthquakes(earthquakes);
         Assert.assertEquals(earthquakeRepository.getLoading(), false);
         Assert.assertNotNull(earthquakeRepository.getUpdatedOn());
+    }
+
+    @Test
+    public void setFilter() {
+        EarthquakeRepository earthquakeRepository = new EarthquakeRepository();
+        LinkedList<Earthquake> earthquakes = this.getFakeEarthquakes(10);
+        earthquakeRepository.refreshEarthquakes(earthquakes);
+        earthquakeRepository.setEarthquakeFilter(earthquakes.get(1), "date");
+
+        // inspect start date
+        Date expectedStartDate = (Date) earthquakes.get(1).getPubDate().clone();
+        expectedStartDate.setHours(0);
+        expectedStartDate.setMinutes(0);
+        expectedStartDate.setSeconds(0);
+        Assert.assertEquals(earthquakeRepository.getFilters().get("startDate"), expectedStartDate);
+
+        // inspect end date
+        Date expectedEndDate = (Date) expectedStartDate.clone();
+        expectedEndDate.setDate(expectedEndDate.getDate() + 1);
+        Assert.assertEquals(earthquakeRepository.getFilters().get("endDate"), expectedEndDate);
+    }
+
+    @Test
+    public void setEarthquakeFilter() {
+    }
+
+    @Test
+    public void getFilters() {
+    }
+
+    @Test
+    public void setLoading() {
+    }
+
+    @Test
+    public void getLoading() {
+    }
+
+    @Test
+    public void getUpdatedOn() {
     }
 }

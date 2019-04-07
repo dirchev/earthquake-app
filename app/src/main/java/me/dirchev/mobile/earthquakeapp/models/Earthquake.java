@@ -114,21 +114,6 @@ public class Earthquake {
         this.setDepth(new Depth(Double.parseDouble(parts[0]), parts[1]));
     }
 
-    @Override
-    public String toString () {
-        String result = "";
-        result += "Title: " + this.title + "\n";
-        result += "Link: " + this.link + "\n";
-        result += "PubDate: " + this.pubDate.toLocaleString() + "\n";
-        result += "Category: " + this.category+ "\n";
-        result += "Location Name: " + this.locationName + "\n";
-        result += "Location: " + this.location.toString() + "\n";
-        result += "Magnitude: " + this.magnitude + "\n";
-        result += "Depth: " + this.depth.toString() + "\n";
-
-        return result;
-    }
-
     public void parseDescription(String descriptionString) {
         String[] fields = descriptionString.split(" ; ");
         for (int i = 0; i < fields.length; i++) {
