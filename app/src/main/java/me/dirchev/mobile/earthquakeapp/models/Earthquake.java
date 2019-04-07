@@ -54,7 +54,7 @@ public class Earthquake {
     }
 
     public void parsePubDate (String pubDateString) throws ParseException {
-        DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy kk:mm:ss", Locale.ENGLISH);
+        DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
         this.setPubDate(df.parse(pubDateString));
     }
 
@@ -162,7 +162,7 @@ public class Earthquake {
         }
     }
 
-    public class Depth {
+    public static class Depth {
         double value;
         String measure;
         public Depth(double value, String measure) {

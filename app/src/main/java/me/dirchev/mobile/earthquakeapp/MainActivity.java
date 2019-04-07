@@ -1,6 +1,5 @@
 package me.dirchev.mobile.earthquakeapp;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.net.ParseException;
 import android.os.Bundle;
@@ -34,12 +33,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import me.dirchev.mobile.earthquakeapp.UI.EarthquakesList.RAdapter;
 import me.dirchev.mobile.earthquakeapp.data.EarthquakeLoader;
-import me.dirchev.mobile.earthquakeapp.data.EarthquakeParsedEventListener;
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
 import me.dirchev.mobile.earthquakeapp.models.EarthquakeDataStore;
 import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepository;
@@ -240,6 +239,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Generates a result string based on the filtered
+     * earthquakes
+     * @return results info string
+     */
+    private String buildResultsInfoString(EarthquakeRepository earthquakeRepository) {
+        int numberOfItems = earthquakeRepository.getFilteredEarthquakes().size();
+        if (numberOfItems == 0) {
+            return getString(R.string.no_earthquakes_found_message);
+        } else {
+            return String.format(getString(R.string.showing_number_earthquakes_message), numberOfItems);
+        }
+    }
+
+    /**
+     * Generates a summary text based on the filters
+     * that have been applied.
+     * @return summary of filters
+     */
+    private String buildFiltersInfoString (EarthquakeRepository earthquakeRepository) {
+        LinkedList<String> resultList = new LinkedList<>();
+        Map<String, Object> filters = earthquakeRepository.getFilters();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.date_format));
+        if (filters.containsKey("text") && !((String) filters.get("text")).isEmpty()) {
+            resultList.add("\"" + filters.get("text") + "\"");
+        }
+        if (filters.containsKey("startDate")) {
+            resultList.add(dateFormat.format((Date) filters.get("startDate")));
+        } else {
+            resultList.add(getString(R.string.beginning));
+        }
+
+        if (filters.containsKey("endDate")) {
+            resultList.add(dateFormat.format((Date) filters.get("endDate")));
+        } else {
+            resultList.add(getString(R.string.today));
+        }
+
+        String result = "";
+        for (String item : resultList) {
+            if (result.isEmpty()) {
+                result += item;
+            } else {
+                result += " - " + item;
+            }
+        }
+        return result;
+    }
+
     private void processEarthquakeRepositoryChange () {
         EarthquakeRepository earthquakeRepository = dataStore.getEarthquakeRepository();
         int selectedEarthquakeIndex = earthquakeRepository.getSelectedEarthquakeIndex();
@@ -253,8 +301,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             fetchInfoTextView.setText(String.format(getString(R.string.updated_on_info_text), format.format(earthquakeRepository.getUpdatedOn())));
         }
         radapter.notifyDataSetChanged();
-        filtersInfo.setText(earthquakeRepository.getFiltersInfoString(MainActivity.this));
-        resultsInfo.setText(earthquakeRepository.getResultsInfoString(MainActivity.this));
+        filtersInfo.setText(buildFiltersInfoString(earthquakeRepository));
+        resultsInfo.setText(buildResultsInfoString(earthquakeRepository));
         updateFiltersInput();
     }
 
@@ -314,7 +362,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         Earthquake selectedEarthquake = earthquakeRepository.getSelectedEarthquake();
         googleMap.clear();
 
-        for (Earthquake current : earthquakeRepository.getVisibleEarthquakes()) {
+        for (Earthquake current : earthquakeRepository.getFilteredEarthquakes()) {
             Marker marker = googleMap.addMarker(new MarkerOptions()
                                      .position(current.getLocation()));
             marker.setTag(current);
@@ -351,25 +399,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 EarthquakeRepository repository = MainActivity.this.dataStore.getEarthquakeRepository();
                 switch (item.getItemId()) {
                     case R.id.southest:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("South"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("South"));
                         return true;
                     case R.id.eastest:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("East"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("East"));
                         return true;
                     case R.id.westest:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("West"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("West"));
                         return true;
                     case R.id.northest:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("North"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("North"));
                         return true;
                     case R.id.shallow:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Shallow"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("Shallow"));
                         return true;
                     case R.id.deepest:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Deep"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("Deep"));
                         return true;
                     case R.id.magnitude:
-                        repository.setSelectedEarthquake(repository.getEWNSMap().get("Magnitude"));
+                        repository.setSelectedEarthquake(repository.getStatisticsMap().get("Magnitude"));
                         return true;
                     default:
                         return false;

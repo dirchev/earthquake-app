@@ -36,8 +36,8 @@ public class EarthquakeLoader extends AsyncTask<URL, Void, LinkedList<Earthquake
 
     private String getXML (URL url) {
         URLConnection yc;
-        BufferedReader in = null;
-        String inputLine = "";
+        BufferedReader in;
+        String inputLine;
         String xmlResult = "";
 
         try {

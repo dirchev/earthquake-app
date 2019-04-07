@@ -84,7 +84,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final RAdapter.ViewHolder viewHolder, int i) {
         // get the earthquake on position (i)
-        Earthquake earthquake = earthquakeRepository.getVisibleEarthquakes().get(i);
+        Earthquake earthquake = earthquakeRepository.getFilteredEarthquakes().get(i);
         // set the earthquake as a tag to the row. This is later used in the context menu
         // tags can be used to store associated metadata to each View
         viewHolder.row.setTag(earthquake);
@@ -117,7 +117,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return earthquakeRepository.getVisibleEarthquakes().size();
+        return earthquakeRepository.getFilteredEarthquakes().size();
     }
 
 
