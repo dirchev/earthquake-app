@@ -242,6 +242,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         Date endDate = endDateInput.getText() == null
               ? null
               : stringToDate(endDateInput.getText().toString());
+        if (endDate != null) {
+            endDate.setHours(23);
+            endDate.setMinutes(59);
+            endDate.setSeconds(59);
+        }
         String searchTerm = searchInput.getText() == null
               ? null
               : searchInput.getText().toString();
@@ -366,7 +371,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
             }
-        }, 0, 1000 * 60 * 30); // every 30 minutes
+        }, 0, 1000 * 60 * 5); // every 5 minutes
     }
     /**
      * Manipulates the map once available.
