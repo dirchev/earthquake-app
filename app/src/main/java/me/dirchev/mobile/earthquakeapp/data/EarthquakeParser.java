@@ -30,50 +30,40 @@ public class EarthquakeParser {
         earthquakes = new LinkedList<>();
     }
 
-    public LinkedList<Earthquake> parse() {
+    public LinkedList<Earthquake> parse() throws XmlPullParserException, IOException {
         Earthquake earthquake = null;
 
-        try {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser xpp = factory.newPullParser();
-            xpp.setInput(new StringReader(this.xmlString));
-            int eventType = xpp.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                // Found a start tag
-                if (eventType == XmlPullParser.START_TAG)
-                {
-                    if (xpp.getName().equalsIgnoreCase("item")) {
-                        earthquake = new Earthquake();
-                    } else if (earthquake != null && xpp.getName().equalsIgnoreCase("title")) {
-                        String value = xpp.nextText();
-                        earthquake.setTitle(value);
-                    } else if (earthquake != null && xpp.getName().equalsIgnoreCase("description")) {
-                        String value = xpp.nextText();
-                        earthquake.parseDescription(value);
-                    } else if (earthquake != null && xpp.getName().equalsIgnoreCase("link")) {
-                        String value = xpp.nextText();
-                        earthquake.setLink(value);
-                    } else if (earthquake != null && xpp.getName().equalsIgnoreCase("category")) {
-                        String value = xpp.nextText();
-                        earthquake.setCategory(value);
-                    }
-                } else if (eventType == XmlPullParser.END_TAG) {
-                    if (xpp.getName().equalsIgnoreCase("item")) {
-                        earthquakes.add(earthquake);
-                        earthquake = null;
-                    }
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        XmlPullParser xpp = factory.newPullParser();
+        xpp.setInput(new StringReader(this.xmlString));
+        int eventType = xpp.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            // Found a start tag
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                if (xpp.getName().equalsIgnoreCase("item")) {
+                    earthquake = new Earthquake();
+                } else if (earthquake != null && xpp.getName().equalsIgnoreCase("title")) {
+                    String value = xpp.nextText();
+                    earthquake.setTitle(value);
+                } else if (earthquake != null && xpp.getName().equalsIgnoreCase("description")) {
+                    String value = xpp.nextText();
+                    earthquake.parseDescription(value);
+                } else if (earthquake != null && xpp.getName().equalsIgnoreCase("link")) {
+                    String value = xpp.nextText();
+                    earthquake.setLink(value);
+                } else if (earthquake != null && xpp.getName().equalsIgnoreCase("category")) {
+                    String value = xpp.nextText();
+                    earthquake.setCategory(value);
                 }
-                eventType = xpp.next();
+            } else if (eventType == XmlPullParser.END_TAG) {
+                if (xpp.getName().equalsIgnoreCase("item")) {
+                    earthquakes.add(earthquake);
+                    earthquake = null;
+                }
             }
-        }
-        catch (XmlPullParserException ae1)
-        {
-            Log.e("MyTag","Parsing error" + ae1.toString());
-        }
-        catch (IOException ae1)
-        {
-            Log.e("MyTag","IO error during parsing");
+            eventType = xpp.next();
         }
         return earthquakes;
     }

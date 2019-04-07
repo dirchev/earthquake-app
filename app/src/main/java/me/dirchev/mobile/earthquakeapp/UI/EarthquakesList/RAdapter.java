@@ -77,7 +77,7 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
 
     EarthquakeRepository earthquakeRepository;
 
-    public RAdapter(Context c) {
+    public RAdapter() {
         earthquakeRepository = EarthquakeDataStore.getInstance().getEarthquakeRepository();
     }
 

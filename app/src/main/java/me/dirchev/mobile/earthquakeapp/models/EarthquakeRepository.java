@@ -1,15 +1,12 @@
 package me.dirchev.mobile.earthquakeapp.models;
 
-import android.content.Context;
-
-import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import me.dirchev.mobile.earthquakeapp.R;
 
 /**
  * Mobile Platform Development Coursework 2019
@@ -19,6 +16,7 @@ import me.dirchev.mobile.earthquakeapp.R;
  * 2019 March 01
  */
 public class EarthquakeRepository {
+    Map<String, Earthquake> earthquakeMap;
     List<Earthquake> earthquakeList;
     List<Earthquake> filteredEarthquakes;
     Map<String, Earthquake> statisticsEarthquakes;
@@ -27,8 +25,10 @@ public class EarthquakeRepository {
     int selectedEarthquakeIndex = -1;
     private boolean loading = true;
     private Date updatedOn;
+    private boolean fetchError;
 
     public EarthquakeRepository () {
+        this.earthquakeMap = new HashMap<>();
         this.earthquakeList = new LinkedList<>();
         this.filteredEarthquakes = new LinkedList<>();
         this.statisticsEarthquakes = new HashMap<>();
@@ -229,10 +229,34 @@ public class EarthquakeRepository {
      * @param fetchedEarthquakes
      */
     public void refreshEarthquakes(LinkedList<Earthquake> fetchedEarthquakes) {
-        this.earthquakeList = fetchedEarthquakes;
+        // iterate over the new earthquakes and check if the earthquake already
+        // exists in the list. We want to have this check in order to keep the
+        // already existing references and save the same selected earthquake
+        boolean receivedNewEarthquakes = false;
+        for (Earthquake earthquake : fetchedEarthquakes) {
+            if (!this.earthquakeMap.containsKey(earthquake.getTitle())) {
+                // earthquake is new, add it to the list
+                this.earthquakeMap.put(earthquake.getTitle(), earthquake);
+                this.earthquakeList.add(earthquake);
+                receivedNewEarthquakes = true;
+            }
+        }
+        this.fetchError = false;
         this.loading = false;
         this.updatedOn = new Date();
-        this.processFilteredEarthquakes();
+        // sort by pubDate and process filters again
+        // only if new earthquakes have been added
+        if (receivedNewEarthquakes) {
+            Collections.sort(this.earthquakeList, new Comparator<Earthquake>() {
+                @Override
+                public int compare(Earthquake o1, Earthquake o2) {
+                    return -1 * o1.getPubDate().compareTo(o2.getPubDate());
+                }
+            });
+            this.processFilteredEarthquakes();
+        } else {
+            this.updateAllListeners();
+        }
     }
 
     /**
@@ -259,5 +283,14 @@ public class EarthquakeRepository {
      */
     public Date getUpdatedOn() {
         return updatedOn;
+    }
+
+    public void setFetchError(boolean fetchError) {
+        this.fetchError = fetchError;
+        this.setLoading(false);
+    }
+
+    public boolean getFetchError() {
+        return fetchError;
     }
 }

@@ -17,6 +17,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -54,6 +56,7 @@ import me.dirchev.mobile.earthquakeapp.models.EarthquakeRepositoryChangeListener
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 {
     private DatePickerDialog datePickerDialog;
+
     class DateInputOnFocusChangeListener implements View.OnFocusChangeListener {
         public void onFocusChange(final View v, boolean hasFocus) {
             final EditText currentDateInput = (EditText) v;
@@ -74,6 +77,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 currentDateInput.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
                             }
                         }, mYear, mMonth, mDay);
+
+                // set min/max date constraints
+                if (v.equals(startDateInput)) {
+                    Date currentlySelectedEndDate = stringToDate(endDateInput.getText().toString());
+                    Date maxDateConstraint = currentlySelectedEndDate == null || currentlySelectedEndDate.compareTo(new Date()) > 0
+                            ? new Date()
+                            : currentlySelectedEndDate;
+                    datePickerDialog.getDatePicker().setMaxDate(maxDateConstraint.getTime());
+                } else {
+                    Date maxDateConstraint = new Date();
+                    datePickerDialog.getDatePicker().setMaxDate(maxDateConstraint.getTime());
+                    Date minDateConstraint = stringToDate(startDateInput.getText().toString());
+                    if (minDateConstraint != null) {
+                        datePickerDialog.getDatePicker().setMinDate(minDateConstraint.getTime());
+                    }
+                }
                 datePickerDialog.show();
             } else {
                 datePickerDialog.hide();
@@ -87,6 +106,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private RecyclerView recyclerView;
     private TextView filtersInfo;
     private TextView fetchInfoTextView;
+    private Button reFetchButton;
     private TextView resultsInfo;
     private EditText startDateInput;
     private EditText endDateInput;
@@ -97,12 +117,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Button updateFiltersButton;
     private SupportMapFragment mapFragment;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
+    private URL url;
     EarthquakeDataStore dataStore = EarthquakeDataStore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        try {
+            url = new URL(urlSource);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Could not parse fetch URL", Toast.LENGTH_LONG);
+        }
         setContentView(R.layout.activity_main);
 
         fetchInfoTextView = findViewById(R.id.fetchInfoTextView);
@@ -117,11 +144,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         toggleFiltersButton = findViewById(R.id.toggleFiltersButton);
         closeFiltersButton = findViewById(R.id.closeFiltersButton);
         clearFiltersButton = findViewById(R.id.clearFiltersButton);
+        reFetchButton = findViewById(R.id.reFetchButton);
         updateFiltersButton = findViewById(R.id.updateFiltersButton);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         // set up the listing
-        radapter = new RAdapter(MainActivity.this);
+        radapter = new RAdapter();
         recyclerView.setAdapter(radapter);
 
         // set up date inputs
@@ -129,6 +157,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startDateInput.setOnFocusChangeListener(dateInputOnFocusChangeListener);
         endDateInput.setOnFocusChangeListener(dateInputOnFocusChangeListener);
 
+        reFetchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EarthquakeLoader loader = new EarthquakeLoader(dataStore.getEarthquakeRepository(), MainActivity.this);
+                loader.execute(url);
+            }
+        });
         // set up filter buttons
         closeFiltersButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -294,9 +329,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         if (selectedEarthquakeIndex != -1) {
             recyclerView.scrollToPosition(selectedEarthquakeIndex);
         }
-        if (earthquakeRepository.getLoading()) {
+        if (earthquakeRepository.getFetchError()) {
+            fetchInfoTextView.setText(getString(R.string.earthquakes_fetch_error_message));
+            reFetchButton.setVisibility(View.VISIBLE);
+        } else if (earthquakeRepository.getLoading()) {
             fetchInfoTextView.setText(getString(R.string.loading_earthquakes_message));
+            reFetchButton.setVisibility(View.GONE);
         } else {
+            reFetchButton.setVisibility(View.VISIBLE);
             SimpleDateFormat format = new SimpleDateFormat(getString(R.string.datetime_format));
             fetchInfoTextView.setText(String.format(getString(R.string.updated_on_info_text), format.format(earthquakeRepository.getUpdatedOn())));
         }
@@ -308,13 +348,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void startProgress()
     {
-        URL url = null;
-        try {
-            url = new URL(urlSource);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Could not parse fetch URL", Toast.LENGTH_LONG);
-        }
         Timer timer = new Timer("earthquakes updater");
         final URL finalUrl = url;
         // schedule a task to be executed every X ms, starting now
@@ -328,12 +361,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        EarthquakeLoader loader = new EarthquakeLoader(dataStore.getEarthquakeRepository());
+                        EarthquakeLoader loader = new EarthquakeLoader(dataStore.getEarthquakeRepository(), MainActivity.this);
                         loader.execute(finalUrl);
                     }
                 });
             }
-        }, 0, 10000);
+        }, 0, 1000 * 60 * 30); // every 30 minutes
     }
     /**
      * Manipulates the map once available.
@@ -367,6 +400,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                      .position(current.getLocation()));
             marker.setTag(current);
             if (current.equals(selectedEarthquake)) {
+                marker.setZIndex(2);
                 marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             }
         }
@@ -379,16 +413,36 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        CameraPosition.Builder cameraPositionBuilder = new CameraPosition.Builder();
-        if (selectedEarthquake == null) {
+
+        if (earthquakeRepository.getUpdatedOn() == null || earthquakeRepository.getFilteredEarthquakes().size() == 0) {
             final LatLng UK_COORDINATES = new LatLng(55.1719958,-6.2549709);
-            // center map
-            cameraPositionBuilder.target(UK_COORDINATES).zoom(5);
-        } else {
-            // center on earthquake location
-            cameraPositionBuilder.target(selectedEarthquake.getLocation()).zoom(8);
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(UK_COORDINATES).zoom(5).build()));
+            return;
         }
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPositionBuilder.build()));
+
+        if (selectedEarthquake != null) {
+            CameraPosition.Builder cameraPositionBuilder = new CameraPosition.Builder().target(selectedEarthquake.getLocation());
+            if (googleMap.getCameraPosition().zoom < 10) {
+                cameraPositionBuilder.zoom(10);
+            } else {
+                cameraPositionBuilder.zoom(googleMap.getCameraPosition().zoom);
+            }
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPositionBuilder.build());
+            googleMap.animateCamera(cameraUpdate);
+            return;
+        }
+
+        LatLngBounds.Builder cameraBoundsBuilder;
+        int cameraPadding;
+        // calculate camera update, that will fit all of the filtered earthquakes
+        cameraBoundsBuilder = new LatLngBounds.Builder()
+            .include(earthquakeRepository.getStatisticsMap().get("East").getLocation())
+            .include(earthquakeRepository.getStatisticsMap().get("West").getLocation())
+            .include(earthquakeRepository.getStatisticsMap().get("North").getLocation())
+            .include(earthquakeRepository.getStatisticsMap().get("South").getLocation());
+        cameraPadding = 200;
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(cameraBoundsBuilder.build(), cameraPadding);
+        googleMap.animateCamera(cameraUpdate);
     }
 
     public void showPopup(View v) {

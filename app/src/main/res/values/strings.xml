@@ -23,4 +23,6 @@
     <string name="dsa">dd-MM-YYYY HH:mm</string>
     <string name="updated_on_info_text">Updated on: %s</string>
     <string name="loading_earthquakes_message">Loading earthquakes...</string>
+    <string name="earthquakes_fetch_error_message">Error fetching earthquakes.</string>
+    <string name="tap_here_to_refresh_message">Tap here to refresh.</string>
 </resources>
