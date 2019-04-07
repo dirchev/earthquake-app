@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.List;
 
 import me.dirchev.mobile.earthquakeapp.models.Earthquake;
@@ -20,7 +22,7 @@ import me.dirchev.mobile.earthquakeapp.models.Earthquake;
 public class EarthquakeParserTest {
 
     @Test
-    public void parseNoEarthquakes() {
+    public void parseNoEarthquakes() throws IOException, XmlPullParserException {
         String rawXML = "" +
                 "<?xml version=\"1.0\"?>\n" +
                 "<rss version=\"2.0\" xmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
@@ -43,7 +45,7 @@ public class EarthquakeParserTest {
     }
 
     @Test
-    public void parseSingleEarthquake() {
+    public void parseSingleEarthquake() throws IOException, XmlPullParserException {
         String rawXML = "" +
                 "<?xml version=\"1.0\"?>\n" +
                 "<rss version=\"2.0\" xmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
@@ -75,7 +77,7 @@ public class EarthquakeParserTest {
     }
 
     @Test
-    public void parseMultipleEarthquakes() {
+    public void parseMultipleEarthquakes() throws IOException, XmlPullParserException {
         String rawXML = "" +
                 "<?xml version=\"1.0\"?>\n" +
                 "<rss version=\"2.0\" xmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +

@@ -9,6 +9,7 @@ import org.apache.tools.ant.taskdefs.Ear;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
@@ -47,6 +48,12 @@ public class EarthquakeRepositoryTest {
             aEarthquake.setMagnitude(faker.number().randomDouble(2, 0, 7));
             earthquakes.add(aEarthquake);
         }
+        earthquakes.sort(new Comparator<Earthquake>() {
+            @Override
+            public int compare(Earthquake o1, Earthquake o2) {
+                return o2.getPubDate().compareTo(o1.getPubDate());
+            }
+        });
         return earthquakes;
     }
 
