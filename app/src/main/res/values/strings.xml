@@ -1,3 +1,7 @@
+<!--
+    MPD Coursework 2019
+    Dimitar Mirchev - S1515512
+-->
 <resources>
     <string name="app_name">Earthquake App</string>
     <string name="no_earthquakes_found_message">No earthquakes found for these filters</string>

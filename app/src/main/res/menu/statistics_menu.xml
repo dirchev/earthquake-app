@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    MPD Coursework 2019
+    Dimitar Mirchev - S1515512
+-->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/eastest" android:title="Most Easterly" />
     <item android:id="@+id/westest" android:title="Most Westerly" />

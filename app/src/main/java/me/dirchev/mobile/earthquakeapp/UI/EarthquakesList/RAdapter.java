@@ -110,8 +110,6 @@ public class RAdapter extends RecyclerView.Adapter<RAdapter.ViewHolder> {
         if (isSelected) {
             cardView.setCardElevation(5);
         } else {
-            // we need this as the item with LTGRAY colour might be reused (we are in RecyclerView)
-            // so we need to implicitly specify the background colour (even if WHITE is the default)
             cardView.setCardElevation(1);
         }
         cardView.setCardBackgroundColor(getColorForEarthquake(earthquake));
